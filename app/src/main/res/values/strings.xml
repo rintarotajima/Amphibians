@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Amphibians</string>
+    <string name="amphibian_title">%s (%s)</string>
+</resources>
