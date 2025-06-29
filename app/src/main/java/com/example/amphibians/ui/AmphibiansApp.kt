@@ -35,7 +35,7 @@ fun AmphibiansApp() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            val amphibiansViewModel: AmphibiansViewModel = viewModel()
+            val amphibiansViewModel: AmphibiansViewModel = viewModel(factory = AmphibiansViewModel.Factory)
             HomeScreen(
                 amphibiansUiState = amphibiansViewModel.amphibiansUiState,
                 retryAction = {},

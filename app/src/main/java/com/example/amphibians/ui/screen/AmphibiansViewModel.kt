@@ -4,10 +4,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import coil3.network.HttpException
+import com.example.amphibians.AmphibiansApplication
 import com.example.amphibians.data.AmphibiansRepository
-import com.example.amphibians.data.NetworkAmphibiansRepository
 import com.example.amphibians.model.Amphibian
 import kotlinx.coroutines.launch
 import okio.IOException
@@ -18,7 +22,7 @@ sealed interface AmphibiansUiState {
     object Loading : AmphibiansUiState
 }
 
-class AmphibiansViewModel() : ViewModel() {
+class AmphibiansViewModel(private val amphibiansRepository: AmphibiansRepository) : ViewModel() {
 
     var amphibiansUiState: AmphibiansUiState by mutableStateOf(AmphibiansUiState.Loading)
        private set
@@ -29,7 +33,6 @@ class AmphibiansViewModel() : ViewModel() {
 
     fun getAmphibians() {
         viewModelScope.launch {
-            val amphibiansRepository = NetworkAmphibiansRepository()
             amphibiansUiState = AmphibiansUiState.Loading
             amphibiansUiState = try {
                 AmphibiansUiState.Success(amphibians = amphibiansRepository.getAmphibians())
@@ -37,6 +40,16 @@ class AmphibiansViewModel() : ViewModel() {
                 AmphibiansUiState.Error
             } catch (e: HttpException) {
                 AmphibiansUiState.Error
+            }
+        }
+    }
+
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val application = (this[APPLICATION_KEY] as AmphibiansApplication)
+                val amphibiansRepository = application.container.amphibiansRepository
+                AmphibiansViewModel(amphibiansRepository = amphibiansRepository)
             }
         }
     }
